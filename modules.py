@@ -1,18 +1,27 @@
+## modules.py - a miniclon of modules utility
+## 	Copyright (C) 2017 Guillermo Cornejo Suárez gcornejo@cenat.ac.ct
+##                         Centro Nacional de Alta Tecnología
+##                         Colaboratorio Nacional de Computación Avanzada
+
+##    This program is free software: you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation, either version 3 of the License, or
+##    (at your option) any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License
+##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-# bashrc export PYTHONPATH=$PYTHONPATH:$HOME/opt
-#!/opt/compilers/python-3.5.2/bin/python3
 
 ###########################################################################
 #--------------------------- Configuration -------------------------------#
 modulerc = '/opt/modulerc'
 ###########################################################################
-
-# check - module avail
-# check - module load
-# check - module loaded 
-# check - module unload
 
 
 import os
@@ -24,7 +33,7 @@ import subprocess
 loaded_modules_cache = []
 
 
-# Start up routine. Currently it only checks if PBS_O_WORKDIR is defined, that means this is a PBS work and changes the working directory. 
+# Start up routine. Currently it only checks if PBS_O_WORKDIR is defined, that means this is a PBS work and changes to the appropiate working directory.
 def __init__():
     # is this a pbs work?
     if 'PBS_O_WORKDIR' in os.environ: 
