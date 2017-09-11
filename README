@@ -1,0 +1,20 @@
+############################################################################
+                                Kabré Tools
+############################################################################
+
+Centro Nacional de Alta Tecnología
+Colaboratorio Nacional de Computación Avanzada 
+
+Guillermo Cornejo - gcornejo@cenat.ac.cr
+
+
+Description:
+
+This repository contains tools to facilitate running and testing programs in Kabré (cluster.cenat.ac.cr). 
+
+Currently, it includes:
+
+    * modules.py - A miniclon of module unix utility. 
+    * scalability module - a python module to write scalability tests.
+    * tutorials - Jupyter notebooks covering how to use each tool. 
+
