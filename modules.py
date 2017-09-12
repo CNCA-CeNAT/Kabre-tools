@@ -51,7 +51,7 @@ def _explore_module_hierarchy(name):
             module_files += _explore_module_hierarchy(path)
     return module_files
 
-# Reads conf file looking for MODULEPATH word, appends path to modules_dict directory, then it calls _explore_module_hierarchy() to discover related modules.
+# Reads conf file looking for MODULEPATH word, appends path to modules_dict dictionary, then it calls _explore_module_hierarchy() to discover related modules.
 def _load_modules_name(conf):
     modules_dict = {}
     f = open(conf)
@@ -207,8 +207,10 @@ def unload(module_name):
 
 
 def run(command, capture_output=False):
+    if type(command) is str:
+        command = command.split()
     if type(command) is not list:
-        raise ValueError("Command must be a list, e.g.: [\"python\", \"my_script.py\", \"paramter1\", \"parameter2\"]")
+        raise ValueError("Command must be string or list, e.g.:\n\tpython my_script.py parameter1 parameter2\n\t[\"python\", \"my_script.py\", \"paramter1\", \"parameter2\"]")
     if capture_output:
         process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         return (process.returncode, process.stdout, process.stderr)
