@@ -1,5 +1,5 @@
 ## modules.py - a miniclon of modules utility
-## 	Copyright (C) 2017 Guillermo Cornejo Suárez gcornejo@cenat.ac.ct
+## 	Copyright (C) 2017 Guillermo Cornejo Suarez gcornejo@cenat.ac.ct
 ##                         Centro Nacional de Alta Tecnología
 ##                         Colaboratorio Nacional de Computación Avanzada
 
@@ -213,7 +213,7 @@ def run(command, capture_output=False):
         raise ValueError("Command must be string or list, e.g.:\n\tpython my_script.py parameter1 parameter2\n\t[\"python\", \"my_script.py\", \"paramter1\", \"parameter2\"]")
     if capture_output:
         process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        return (process.returncode, process.stdout, process.stderr)
+        return process
     else:
         process = subprocess.run(command, universal_newlines=True)
         return process.returncode
