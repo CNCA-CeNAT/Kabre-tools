@@ -10,8 +10,8 @@ import modules
 def dummy_setup():
     pass
 
-def poli_growth(base, order):
-    return lambda c: base * c**order
+def poli_growth(factor, order):
+    return lambda c: factor * np.power(c, order)
 
 class Executable:
     def __init__(self, P, setup, name='scaling_test', capture_output=False):
@@ -94,7 +94,7 @@ def scaling_full_test(executable, G_strong, G_weak, cores, repetitions, print_ti
 
     fig, ax1 = plt.subplots()
     ax1.set_xscale('log', basex=2)
-    ax1.set_title(executable.name + 'scalability')
+    ax1.set_title(executable.name + ' scalability')
     ax1.set_xlabel('Workers')
     plt.xticks(workers, cores_label)
 
@@ -111,7 +111,34 @@ def scaling_full_test(executable, G_strong, G_weak, cores, repetitions, print_ti
     ax1.legend(loc=2)
     ax2.legend(loc=1)
     fig.savefig(executable.name.replace(' ', '_') + '_full_scaling.png')
-    
+
+
+def scaling_multiple(exec_list, G, cores, repetitions, print_time=False):
+    scaling = []
+    for e in exec_list:
+        scaling.append(tester(e, G, cores, repetitions))
+        if print_time:
+            np.savetxt(e.name.replace(' ', '_') + 'scaling_test.txt', scaling[-1])
+
+    workers = np.array([np.prod(c) for c in cores])
+    cores_label = [str(c) for c in cores]
+
+    speedup     = [np.mean(s, axis=0) for s in scaling]
+    speedup_std = [np.std(s, axis=0) for s in scaling]
+
+    fig, ax = plt.subplots()
+    ax.set_xscale('log', basex=2)
+    ax.set_title(executable.name + ' scalablity')
+    ax.set_xlabel('Workers')
+    plt.xticks(workers, cores_label)
+
+    ax.set_ylabel('Speedup')
+    for s, s_std in zip(speedup, speedup_std):
+        ax1.errorbar(workers, s, fmt='-', yerr=s_std, label=executable.name.replace(' ', '_'))
+
+    ax.legend(loc=2)
+    fig.savefig('_'.join([e.name.replace(' ', '_') for e in exec_list]) + '.png')
+
 def scalability_main(test_funcs):
     if len(sys.argv[1:]) == 0:
         raise SystemExit('No test name given\nUsage:qsub %s -F test_name' % sys.argv[0])
