@@ -11,26 +11,26 @@ def dummy_setup():
     pass
 
 def poli_growth(factor, order):
-    return lambda c: factor * np.power(c, order)
+    return lambda c: int(factor * np.power(c, 1/order))
 
 class Executable:
-    def __init__(self, P, setup, name='scaling_test', capture_output=False):
-        self.P    = P
-        self.name = name
-        self.co   = capture_output
+    def __init__(self, P, setup, name='scaling_test', parse_output_func=None):
+        self.P            = P
+        self.name         = name
+        self.parse_output = parse_output_func
         setup()
 
     def run(self, c, s):
         start = time.time()
         out = modules.run(self.P(c, s), capture_output=True)
         end = time.time()
-        if self.co:
-            try:
-                return float(out)
-            except ValueError:
-                raise SystemExit('Executable set with capture_output = True, but returned value cannot be parsed to Float')
+        if self.parse_output != None:
+            r_value = self.parse_output(out.stdout)
+            if type(r_value) is not float:
+                raise SystemExit('Value returned by self.parse_output() isn´t a float')
         else:
-            return float(end - start)
+            r_value = float(end - start)
+        return r_value
 
 def tester(executable, G, cores, repetitions):
     reps = []
@@ -66,11 +66,11 @@ def scaling_sigle_test(executable, G, cores, repetitions, print_times=False):
 
     ax2 = ax1.twinx()
     ax2.set_ylabel('Efficiency')
-    ax2.set_ylim([0,1])
+    ax2.set_ylim([0,1.1])
     ax2.plot(workers, efficiency, '--', label='Efficiency')
 
     ax1.legend(loc=2)
-    ax2.legend(loc=1)
+    ax2.legend(loc=4)
 
     fig.savefig(executable.name.replace(' ', '_') + '_scaling.png')
 
@@ -99,26 +99,26 @@ def scaling_full_test(executable, G_strong, G_weak, cores, repetitions, print_ti
     plt.xticks(workers, cores_label)
 
     ax2 = ax1.twinx()
-    ax2.set_ylim([0,1])
+    ax2.set_ylim([0,1.1])
     ax1.set_ylabel('Speedup') 
     ax2.set_ylabel('Efficiency')
 
     ax1.errorbar(workers, strong_speedup, fmt='-', yerr=strong_speedup_std, label='Strong speedup')
-    ax1.errorbar(workers, weak_speedup, fmt='--', yerr=weak_speedup_std, label='Weak efficiency')
+    ax1.errorbar(workers, weak_speedup, fmt='--', yerr=weak_speedup_std, label='Weak speedup')
     ax2.plot(workers, strong_efficiency, '-.', label='Strong efficiency')
     ax2.plot(workers, weak_efficiency, ':', label='Weak efficiency')
 
     ax1.legend(loc=2)
-    ax2.legend(loc=1)
+    ax2.legend(loc=4)
     fig.savefig(executable.name.replace(' ', '_') + '_full_scaling.png')
 
 
-def scaling_multiple(exec_list, G, cores, repetitions, print_time=False):
+def scaling_multiple(name, exec_list, G, cores, repetitions, print_time=False):
     scaling = []
     for e in exec_list:
         scaling.append(tester(e, G, cores, repetitions))
         if print_time:
-            np.savetxt(e.name.replace(' ', '_') + 'scaling_test.txt', scaling[-1])
+            np.savetxt(e.name.replace(' ', '_') + 'scaling_multiple.txt', scaling[-1])
 
     workers = np.array([np.prod(c) for c in cores])
     cores_label = [str(c) for c in cores]
@@ -128,16 +128,16 @@ def scaling_multiple(exec_list, G, cores, repetitions, print_time=False):
 
     fig, ax = plt.subplots()
     ax.set_xscale('log', basex=2)
-    ax.set_title(executable.name + ' scalablity')
+    ax.set_title(name + ' scalablity')
     ax.set_xlabel('Workers')
     plt.xticks(workers, cores_label)
 
     ax.set_ylabel('Speedup')
-    for s, s_std in zip(speedup, speedup_std):
-        ax1.errorbar(workers, s, fmt='-', yerr=s_std, label=executable.name.replace(' ', '_'))
+    for s, s_std, e in zip(speedup, speedup_std, exec_list):
+        ax.errorbar(workers, s, fmt='-', yerr=s_std, label=e.name.replace(' ', '_'))
 
     ax.legend(loc=2)
-    fig.savefig('_'.join([e.name.replace(' ', '_') for e in exec_list]) + '.png')
+    fig.savefig(name + '_cmp_scaling_test.png')
 
 def scalability_main(test_funcs):
     if len(sys.argv[1:]) == 0:
